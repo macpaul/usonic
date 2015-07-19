@@ -6,11 +6,18 @@
 
 # This codes origin from http://goo.gl/Z2REoj
 
+class sensor:
+	def __init__(self):
+		self.gpio_in = 0
+		self.gpio_out = 0
+
+	def config(self, input, output):
+		self.gpio_in = input
+		self.gpio_out = output
+
 def reading(sensor):
 	import time
 	import RPi.GPIO as GPIO
-	gpio_out = 7
-	gpio_in = 12
 	
 	# Disable any warning message such as GPIO pins in use
 	GPIO.setwarnings(False)
@@ -21,8 +28,12 @@ def reading(sensor):
 	# port and not the number of the physical pin
 	GPIO.setmode(GPIO.BCM)
 	
-	if sensor == 0:
-		
+	if sensor.gpio_in is 0:
+		print "You have to assign gpio_in and gpio_out to a usonic() sensor!\n"
+	else:
+		gpio_in = sensor.gpio_in
+		gpio_out = sensor.gpio_out
+
 		# point the software to the GPIO pins the sensor is using
 		# change these values to the pins you are using
 		# GPIO output = the pin that's connected to "Trig" on the sensor
@@ -79,15 +90,29 @@ def reading(sensor):
 		# we now have our distance but it's not in a useful unit of
 		# measurement. So now we convert this distance into centimetres
 		distance = timepassed * 17000
-		
-		# return the distance of an object in front of the sensor in cm
-		return distance
-		
+
 		# we're no longer using the GPIO, so tell software we're done
 		GPIO.cleanup()
 
-	else:
-		print "Incorrect usonic() function varible."
+		# return the distance of an object in front of the sensor in cm
+		return distance
 
-		
-print reading(0)
+if __name__ == "__main__":
+	import sys, time
+
+	argc = len(sys.argv)
+
+	main_sensor = sensor()
+
+	# setup GPIO numbers sensor.config(gpio_in, gpio_out)
+	main_sensor.config(12, 7)
+
+	if argc > 2:
+		sys.exit("Only accept 1 argument. Exit.")
+	elif argc == 2:
+		count = int(sys.argv[1])
+		for x in range(0, count):
+			print reading(main_sensor)
+			time.sleep(1)
+	else:
+		print reading(main_sensor)
