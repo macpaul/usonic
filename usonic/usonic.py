@@ -6,7 +6,7 @@
 
 # This codes origin from http://goo.gl/Z2REoj
 
-class sensor:
+class UsonicSensor:
     def __init__(self):
         self.gpio_in = 0
         self.gpio_out = 0
@@ -15,7 +15,10 @@ class sensor:
         self.gpio_in = input
         self.gpio_out = output
 
-def reading(sensor):
+def read(sensor):
+    """
+    distance of object in front of sensor in CM.
+    """
     import time
     import RPi.GPIO as GPIO
     
@@ -29,7 +32,7 @@ def reading(sensor):
     GPIO.setmode(GPIO.BCM)
     
     if sensor.gpio_in is 0:
-        print "You have to assign gpio_in and gpio_out to a usonic() sensor!\n"
+        raise RuntimeError('gpio_in, gpio_out attribute of Sensor object must be assigned before calling read')
     else:
         gpio_in = sensor.gpio_in
         gpio_out = sensor.gpio_out
@@ -94,7 +97,6 @@ def reading(sensor):
         # we're no longer using the GPIO, so tell software we're done
         GPIO.cleanup()
 
-        # return the distance of an object in front of the sensor in cm
         return distance
 
 if __name__ == "__main__":
@@ -102,7 +104,7 @@ if __name__ == "__main__":
 
     argc = len(sys.argv)
 
-    main_sensor = sensor()
+    main_sensor = UsonicSensor()
 
     # setup GPIO numbers sensor.config(gpio_in, gpio_out)
     main_sensor.config(12, 7)
@@ -112,7 +114,7 @@ if __name__ == "__main__":
     elif argc == 2:
         count = int(sys.argv[1])
         for x in range(0, count):
-            print reading(main_sensor)
+            print read(main_sensor)
             time.sleep(1)
     else:
-        print reading(main_sensor)
+        print read(main_sensor)
